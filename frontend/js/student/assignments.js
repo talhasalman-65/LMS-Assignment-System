@@ -61,7 +61,7 @@
                     const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
                     return `
                     <li class="file-item">
-                      <span class="file-icon">📎</span>
+                      <img src="/logos/attachment.png" class="file-icon" alt="Attachment">
                       <div class="file-info">
                         <a href="${fileUrl}" target="_blank" class="file-name">${escapeHtml(f.fileName)}</a>
                         <div class="file-size">${formatFileSize(f.fileSize)}</div>
@@ -77,7 +77,7 @@
         <div class="card" style="margin-bottom:20px" id="submit-section">
           <div class="card-header"><h3>Your Submissions (${submissions.length}/${assignment.max_attempts})</h3></div>
           <div class="card-body">
-              ${submissions.length === 0 ? '<div class="empty-state"><div class="empty-icon">📤</div><h3>No submissions yet</h3><p>Submit your work for this assignment</p></div>' : `
+              ${submissions.length === 0 ? '<div class="empty-state"><div class="empty-icon"><img src="/logos/submission.png" alt="No submissions" class="empty-icon-img"></div><h3>No submissions yet</h3><p>Submit your work for this assignment</p></div>' : `
               <div style="display:flex;flex-direction:column;gap:8px">
                 ${submissions.map(s => `
                   <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:var(--radius)">
@@ -207,7 +207,7 @@
       const assignments = allAssignments.assignments || [];
 
       if (assignments.length === 0) {
-        list.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><h3>No assignments found</h3><p>There are no assignments matching your criteria</p></div>';
+        list.innerHTML = '<div class="empty-state"><div class="empty-icon"><img src="/logos/assignment.png" alt="No assignments" class="empty-icon-img"></div><h3>No assignments found</h3><p>There are no assignments matching your criteria</p></div>';
       } else {
         list.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' +
           assignments.map(a => {

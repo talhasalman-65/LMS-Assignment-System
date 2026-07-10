@@ -58,28 +58,28 @@
 
     document.getElementById('stats-grid').innerHTML = `
       <div class="stat-card">
-        <div class="stat-icon primary">📝</div>
+        <div class="stat-icon primary"><img src="/logos/assignment.png" alt="Upcoming" class="stat-icon-img"></div>
         <div class="stat-info">
           <div class="stat-label">Upcoming</div>
           <div class="stat-value">${stats.upcoming}</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon info">📤</div>
+        <div class="stat-icon info"><img src="/logos/submission.png" alt="Submitted" class="stat-icon-img"></div>
         <div class="stat-info">
           <div class="stat-label">Submitted</div>
           <div class="stat-value">${stats.submitted}</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon success">⭐</div>
+        <div class="stat-icon success"><img src="/logos/grades.png" alt="Graded" class="stat-icon-img"></div>
         <div class="stat-info">
           <div class="stat-label">Graded</div>
           <div class="stat-value">${stats.graded}</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon warning">⏰</div>
+        <div class="stat-icon warning"><img src="/logos/late.png" alt="Late" class="stat-icon-img"></div>
         <div class="stat-info">
           <div class="stat-label">Late</div>
           <div class="stat-value">${stats.late}</div>

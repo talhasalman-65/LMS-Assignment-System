@@ -185,7 +185,7 @@
       const res = await apiRequest('/users', { params: { ...filters, page, limit: 20 } });
       const users = res.users || [];
       if (users.length === 0) {
-        el.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><h3>No users found</h3></div>';
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon"><img src="/logos/users.png" alt="No users found" class="empty-icon-img"></div><h3>No users found</h3></div>';
       } else {
         el.innerHTML = `<table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>${users.map(u => `<tr>

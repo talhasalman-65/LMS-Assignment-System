@@ -150,7 +150,7 @@ function initTheme() {
   const saved = localStorage.getItem('theme');
   if (saved === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
-    toggle.textContent = '☀️';
+    toggle.innerHTML = '<img src="/logos/sun.png" alt="Light mode" class="theme-toggle-icon">';
   }
 
   toggle.addEventListener('click', () => {
@@ -158,11 +158,11 @@ function initTheme() {
     if (current === 'dark') {
       document.documentElement.removeAttribute('data-theme');
       localStorage.setItem('theme', 'light');
-      toggle.textContent = '🌙';
+      toggle.innerHTML = '<img src="/logos/moon.png" alt="Dark mode" class="theme-toggle-icon">';
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
       localStorage.setItem('theme', 'dark');
-      toggle.textContent = '☀️';
+      toggle.innerHTML = '<img src="/logos/sun.png" alt="Light mode" class="theme-toggle-icon">';
     }
   });
 }

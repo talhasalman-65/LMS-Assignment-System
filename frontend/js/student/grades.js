@@ -18,7 +18,7 @@
     const subs = res.submissions || [];
     const el = document.getElementById('grades-list');
     if (subs.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">⭐</div><h3>No grades yet</h3><p>Your graded submissions will appear here</p></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon"><img src="/logos/grades.png" alt="No grades" class="empty-icon-img"></div><h3>No grades yet</h3><p>Your graded submissions will appear here</p></div>';
     } else {
       el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' +
         subs.map(s => `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:var(--radius)">

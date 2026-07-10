@@ -45,27 +45,27 @@
     const stats = await apiRequest('/reports/admin/stats');
     document.getElementById('stats-grid').innerHTML = `
       <div class="stat-card">
-        <div class="stat-icon primary">👥</div>
+        <div class="stat-icon primary"><img src="/logos/users.png" alt="Total Users" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Total Users</div><div class="stat-value">${stats.total_students + stats.total_teachers + stats.total_admins}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon info">🎓</div>
+        <div class="stat-icon info"><img src="/logos/students.png" alt="Students" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Students</div><div class="stat-value">${stats.total_students}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon success">👨‍🏫</div>
+        <div class="stat-icon success"><img src="/logos/teacher.png" alt="Teachers" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Teachers</div><div class="stat-value">${stats.total_teachers}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon warning">📝</div>
+        <div class="stat-icon warning"><img src="/logos/assignment.png" alt="Assignments" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Assignments</div><div class="stat-value">${stats.total_assignments}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon info">📥</div>
+        <div class="stat-icon info"><img src="/logos/inbox.png" alt="Submissions" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Submissions</div><div class="stat-value">${stats.total_submissions}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon danger">⏳</div>
+        <div class="stat-icon danger"><img src="/logos/pending.png" alt="Pending" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Pending</div><div class="stat-value">${stats.pending_submissions}</div></div>
       </div>
     `;

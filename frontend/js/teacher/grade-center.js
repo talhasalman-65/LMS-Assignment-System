@@ -42,7 +42,7 @@
                       const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
                       return `
                       <li class="file-item">
-                        <span class="file-icon">📄</span>
+                        <img src="/logos/file.png" class="file-icon" alt="File">
                         <div class="file-info">
                           <a href="${fileUrl}" target="_blank" class="file-name">${escapeHtml(f.fileName)}</a>
                           <div class="file-size">${formatFileSize(f.fileSize)}</div>
@@ -154,7 +154,7 @@
     const subs = res.submissions || [];
     const el = document.getElementById('grade-list');
     if (subs.length === 0) {
-      el.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><h3>No submissions to grade</h3></div>';
+      el.innerHTML = '<div class="empty-state"><div class="empty-icon"><img src="/logos/checkmark.png" alt="No submissions" class="empty-icon-img"></div><h3>No submissions to grade</h3></div>';
     } else {
       el.innerHTML = `<table>
         <thead><tr>

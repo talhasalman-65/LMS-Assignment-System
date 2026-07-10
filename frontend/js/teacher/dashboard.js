@@ -37,19 +37,19 @@
     const stats = await apiRequest('/reports/teacher/stats');
     document.getElementById('stats-grid').innerHTML = `
       <div class="stat-card">
-        <div class="stat-icon primary">📝</div>
+        <div class="stat-icon primary"><img src="/logos/assignment.png" alt="Assignments" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Assignments</div><div class="stat-value">${stats.total_assignments}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon info">📥</div>
+        <div class="stat-icon info"><img src="/logos/inbox.png" alt="Total Submissions" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Total Submissions</div><div class="stat-value">${stats.total_submissions}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon warning">⏳</div>
+        <div class="stat-icon warning"><img src="/logos/pending.png" alt="Pending Review" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Pending Review</div><div class="stat-value">${stats.pending_reviews}</div></div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon success">✅</div>
+        <div class="stat-icon success"><img src="/logos/checkmark.png" alt="Graded" class="stat-icon-img"></div>
         <div class="stat-info"><div class="stat-label">Graded</div><div class="stat-value">${stats.graded_submissions}</div></div>
       </div>
     `;

@@ -33,7 +33,7 @@
       const res = await apiRequest('/submissions', { params: { ...filters, page, limit: 10 } });
       const subs = res.submissions || [];
       if (subs.length === 0) {
-        el.innerHTML = '<div class="empty-state"><div class="empty-icon">📤</div><h3>No submissions yet</h3><p>Submit your assignments to see them here</p></div>';
+        el.innerHTML = '<div class="empty-state"><div class="empty-icon"><img src="/logos/submission.png" alt="No submissions" class="empty-icon-img"></div><h3>No submissions yet</h3><p>Submit your assignments to see them here</p></div>';
       } else {
         el.innerHTML = '<div style="display:flex;flex-direction:column;gap:8px">' +
           subs.map(s => `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;border:1px solid var(--border);border-radius:var(--radius)">

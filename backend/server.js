@@ -35,8 +35,8 @@ app.use('/api/logs', require('./routes/logs'));
 app.use('/api/classes', require('./routes/classes'));
 app.use('/api/sections', require('./routes/sections'));
 
-// Serve frontend
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+// Serve React frontend (Vite build)
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'dist')));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -63,7 +63,7 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'dist', 'index.html'));
 });
 
 // Start server

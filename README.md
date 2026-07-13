@@ -1,51 +1,16 @@
 # SmartAssign LMS
 
-Learning Management System for assignment submission and evaluation with three roles: **student**, **teacher**, **administrator**. Built as a monolithic web application — Express.js backend serves a vanilla JavaScript SPA frontend.
+Learning Management System for assignment submission and evaluation with three roles: **student**, **teacher**, **administrator**. Express.js backend serves a React SPA frontend.
 
 ## Tech Stack
 
-- **Frontend**: HTML5, CSS3, Vanilla JavaScript (IIFE modules, no framework), Fetch API, `localStorage` token storage
+- **Frontend**: React 18, Vite, Tailwind CSS 3, Zustand, TanStack Query, TanStack Table, React Router 6, Recharts, date-fns, Lucide icons
 - **Backend**: Node.js 18+, Express.js 4.18
 - **Database**: PostgreSQL 14+ with custom ENUM types
 - **Auth**: JWT (15m access token + 7d refresh token with rotation), bcryptjs password hashing
 - **File Uploads**: multer with type whitelist (`.pdf`, `.docx`, `.zip`) and 5 MB size limit
-- **Security**: helmet (HTTP headers), express-rate-limit, parameterized SQL queries, **secure file download endpoints with authorization**
+- **Security**: helmet (HTTP headers), express-rate-limit, parameterized SQL queries, file download authorization
 - **Validation**: express-validator on all mutation endpoints
-
-## Recent Fixes & Improvements (Audit 2026-06-28)
-
-### Security Fixes
-| Issue | Fix |
-|-------|-----|
-| **Files publicly accessible via `/uploads/`** | New `/api/files/` endpoints with role-based authorization; files no longer served directly |
-| **Incomplete multer error handling** | Added handlers for `LIMIT_FILE_COUNT`, `LIMIT_UNEXPECTED_FILE`, and generic `MulterError` |
-| **Missing file existence check** | Static middleware now returns 404 JSON instead of raw 404 |
-| **No authorization on file downloads** | `/api/files/submission/:id` and `/api/files/assignment/:id` enforce RBAC |
-
-### Backend Fixes
-| Issue | Fix |
-|-------|-----|
-| Assignment attachments missing `createdAt` in API | Added to `assignmentRepository.findWithDetails` |
-| Submission files missing `createdAt` in list/history queries | Added to both subqueries in `submissionRepository` |
-| Teacher assignment detail view missing attachments | Added attachment rendering to `teacher/assignments.js` |
-| Student grades page missing submission files | Added file links to `student/grades.js` |
-| Missing database indexes on file tables | Added `idx_submission_files_submission_id` and `idx_assignment_attachments_assignment_id` |
-
-### Frontend UX Improvements
-| Feature | Implementation |
-|---------|----------------|
-| **Upload progress bar** | New `uploadWithProgress()` in `api.js` using `XMLHttpRequest` |
-| **PDF preview buttons** | PDF files show 👁 Preview button opening in new tab |
-| **Download buttons** | All files show ⬇ Download button with `download` attribute |
-| **File type icons** | 📄 PDF, 📝 DOCX, 📦 ZIP with color-coded icons |
-| **File metadata display** | Size + upload date shown for each file |
-| **Empty file states** | "No files attached" message when empty |
-| **Responsive file actions** | Buttons stack on mobile, accessible labels |
-
-### Code Quality
-- Removed dead code (`assignmentRepository.getTargets`, `submissionRepository.getNextVersion`)
-- Standardized error handling patterns across controllers
-- Added file type icons in CSS with dark mode support
 
 ## Prerequisites
 
@@ -61,6 +26,7 @@ Learning Management System for assignment submission and evaluation with three r
 git clone <repo-url> smartassign-lms
 cd smartassign-lms
 npm install
+cd frontend && npm install && cd ..
 ```
 
 ### 2. Create and seed the database
@@ -70,16 +36,6 @@ psql -U postgres -c "CREATE DATABASE smartassign_lms;"
 psql -U postgres -d smartassign_lms -f database/schema.sql
 psql -U postgres -d smartassign_lms -f database/seed.sql
 ```
-
-Run migration for new indexes (optional if schema recreated):
-
-```bash
-psql -U postgres -d smartassign_lms -f database/migration_file_indexes.sql
-```
-
-`schema.sql` creates 12 tables, 4 ENUM types (`user_role`, `user_status`, `assignment_type`, `submission_status`), and default settings.  
-`seed.sql` inserts 1 administrator, 1 teacher, 2 students, 3 classes, and 6 sections.  
-`migration_file_indexes.sql` adds performance indexes on file lookup columns.
 
 ### 3. Configure environment
 
@@ -107,11 +63,23 @@ Edit `.env` to match your PostgreSQL credentials and desired JWT secrets.
 
 ### 4. Start the server
 
+Terminal 1 — backend:
 ```bash
 npm run dev
 ```
 
-Open **http://localhost:3000**.
+Terminal 2 — frontend (dev mode with HMR):
+```bash
+cd frontend && npm run dev
+```
+
+For production, build the frontend first then start only the backend:
+```bash
+cd frontend && npm run build && cd ..
+npm run dev
+```
+
+Open **http://localhost:3000** (production) or **http://localhost:5173** (dev with HMR).
 
 ## Demo Accounts
 
@@ -137,33 +105,45 @@ smartassign-lms/
 │   │   ├── upload.js         # multer config (disk storage, uuid filenames)
 │   │   └── validate.js       # express-validator error handler
 │   ├── repositories/         # SQL data access — parameterized queries only
-│   ├── routes/
-│   │   └── files.js          # NEW: Secure file download endpoints with RBAC
+│   ├── routes/               # API route definitions
 │   ├── services/             # Business logic — orchestrates repositories, audit logging
 │   ├── utils/
 │   │   ├── helpers.js        # Pagination, grade calculation, sanitization
 │   │   └── logger.js         # auditLog (system_logs table) + activityLogger (activity_log table)
 │   ├── validators/           # express-validator rule arrays
 │   ├── uploads/              # Uploaded files (gitignored)
-│   └── server.js             # App entry point — middleware, routes, global error handler
+│   └── server.js             # App entry point — middleware, routes, global error handler, serves frontend/dist
 ├── frontend/
-│   ├── css/main.css          # All styles (CSS custom properties, responsive)
-│   ├── js/
-│   │   ├── api.js            # Fetch wrapper — auto token refresh, uploadWithProgress()
-│   │   ├── layout.js         # Role-based sidebar + header rendering
-│   │   ├── utils.js          # Toast, date formatting, status badges, escapeHtml, getFileIcon()
-│   │   ├── login-page.js     # Login form handler, token persistence, role-based redirect
-│   │   ├── admin/            # Admin page controllers
-│   │   ├── teacher/          # Teacher page controllers (assignments, submissions, grading, reports)
-│   │   └── student/          # Student page controllers (assignments, submissions, grades)
-│   └── pages/                # HTML pages — one per view, organized by role
+│   ├── src/
+│   │   ├── api/
+│   │   │   └── client.js     # Fetch wrapper — JWT auto-refresh, base URL config
+│   │   ├── components/
+│   │   │   ├── layout/       # AppLayout, Sidebar, TopHeader, ProtectedRoute
+│   │   │   └── ui/           # 17 shared components (Button, Card, Modal, Table, etc.)
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── admin/        # Dashboard, Users, Assignments, Reports, Settings, Logs, Profile
+│   │   │   ├── teacher/      # Dashboard, CreateAssignment, Assignments, Submissions, GradeCenter, GradeSubmission, Reports, Profile
+│   │   │   └── student/      # Dashboard, Assignments, AssignmentDetail, Submissions, Grades, Profile
+│   │   ├── store/
+│   │   │   ├── auth.js       # Zustand — user, tokens, session-check gate
+│   │   │   └── ui.js         # Zustand — sidebar, theme, toasts
+│   │   ├── styles/
+│   │   │   └── tokens.css    # CSS custom properties — Office Hours design tokens
+│   │   └── utils/
+│   │       ├── helpers.js    # cn(), status maps, grade helpers
+│   │       └── format.js     # formatDate, formatFileSize, etc.
+│   ├── dist/                 # Production build output (served by Express)
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── tailwind.config.js
+│   └── vite.config.js
 ├── database/
 │   ├── schema.sql            # Full schema: 12 tables, 4 ENUMs, indexes, default settings
 │   ├── seed.sql              # Demo data
-│   └── migration_file_indexes.sql  # NEW: Performance indexes for file tables
 ├── docs/
 │   ├── api.md                # Full API reference
-│   └── architecture.md       # Architecture decision record
+│   └── architecture.md      # Architecture decision record
 └── package.json
 ```
 
@@ -182,12 +162,24 @@ Routes → Middleware → Controllers → Services → Repositories → PostgreS
 - **Repositories** (`repositories/`) — Execute parameterized SQL queries and return plain objects. No Express dependency.
 - **Validators** (`validators/`) — express-validator rule arrays applied after role authorization in the middleware chain.
 
+### Frontend architecture
+
+```
+React Router → ProtectedRoute → Layout (Sidebar + TopHeader) → Page
+```
+
+- **Routing**: 28 routes (23 page views + 5 index redirects) across 3 roles, all under `/app/{role}/...`. `RootRedirect` handles first-load role detection. `ProtectedRoute` gates by role and returns `null` during session check to prevent flash-of-login.
+- **State**: Zustand stores for `auth` (user, tokens, session state) and `ui` (sidebar, theme, toasts). Server data fetched via TanStack Query with automatic caching and refetching.
+- **UI System**: 17 shared components styled with CSS custom properties (Office Hours palette). Status indicators use a 3px colored left-edge bar on tables and pill badges in detail views.
+- **Design Tokens**: Single source of truth in `tokens.css` — ink `#1B2430`, paper `#F6F5F1`, teal `#0E7C66`, brass `#C9922B`. Fonts: Public Sans (UI), JetBrains Mono (monospace).
+
 ### Authentication flow
 
 1. `POST /api/auth/login` — Validate credentials with bcrypt, issue access token (15m) + refresh token (7d, stored in `refresh_tokens` table).
 2. Client stores both tokens in `localStorage`. Access token sent as `Authorization: Bearer <token>` on every request.
-3. On 401, `api.js` automatically calls `POST /api/auth/refresh` with the refresh token. The old refresh token is revoked (rotation). A new token pair is issued and the original request is retried once.
+3. On 401, the API client automatically calls `POST /api/auth/refresh` with the refresh token. The old refresh token is revoked (rotation). A new token pair is issued and the original request is retried once.
 4. `POST /api/auth/logout` revokes the refresh token server-side.
+5. On app mount, a `useEffect` in `main.jsx` calls `GET /api/auth/me` to restore the session. The `isCheckingSession` flag prevents route guards from redirecting before the check completes.
 
 ### File uploads & secure access
 
@@ -195,22 +187,9 @@ Routes → Middleware → Controllers → Services → Repositories → PostgreS
 - Allowed extensions: `.pdf`, `.docx`, `.zip`.
 - Maximum 5 files per request, 5 MB each.
 - File type validation in `middleware/upload.js`; global error handler catches multer errors.
-- **NEW**: Files served via **`/api/files/submission/:id`** and **`/api/files/assignment/:id`** with RBAC checks:
-  - Students: own submissions, assigned assignment attachments
-  - Teachers: submissions for their assignments, their assignment attachments
-  - Admins: all files
-- Static `/uploads/` still available for backward compatibility but not recommended for new code.
+- Files served via **static `/uploads/`** directory with Express `express.static`.
 
 ## API Routes
-
-### New File Endpoints
-
-| Method | Path | Auth | RBAC | Description |
-|---|---|---|---|---|
-| `GET` | `/api/files/submission/:fileId` | JWT | Student (own), Teacher (own assignments), Admin | Download submission file |
-| `GET` | `/api/files/assignment/:fileId` | JWT | Student (assigned), Teacher (own), Admin | Download assignment attachment |
-
-### Full Route Table
 
 | Method | Path | Auth | RBAC | Description |
 |---|---|---|---|---|
@@ -231,7 +210,7 @@ Routes → Middleware → Controllers → Services → Repositories → PostgreS
 | `PUT` | `/api/assignments/:id` | JWT | Teacher, Admin | Update assignment |
 | `DELETE` | `/api/assignments/:id` | JWT | Teacher, Admin | Delete assignment |
 | `POST` | `/api/assignments/:id/archive` | JWT | Teacher, Admin | Archive assignment |
-| `POST` | `/api/submissions/:assignmentId/submit` | JWT | Student | Submit assignment (multipart, progress) |
+| `POST` | `/api/submissions/:assignmentId/submit` | JWT | Student | Submit assignment (multipart) |
 | `GET` | `/api/submissions` | JWT | — | List submissions (scoped by role) |
 | `GET` | `/api/submissions/:id` | JWT | — | Get submission (+ files) |
 | `POST` | `/api/submissions/:id/grade` | JWT | Teacher, Admin | Grade submission |
@@ -244,6 +223,7 @@ Routes → Middleware → Controllers → Services → Repositories → PostgreS
 | `POST` | `/api/sections` | JWT | Admin | Create section |
 | `GET` | `/api/settings` | JWT | — | List settings |
 | `PUT` | `/api/settings` | JWT | Admin | Update setting |
+| `PUT` | `/api/settings/bulk` | JWT | Admin | Bulk update settings |
 | `GET` | `/api/logs` | JWT | Admin | View audit logs |
 
 Full documentation: [docs/api.md](docs/api.md)
@@ -265,24 +245,6 @@ Full documentation: [docs/api.md](docs/api.md)
 | `system_logs` | Before/after JSONB audit trail | `actor_id`, `action`, `entity_type`, `entity_id`, `before_value`, `after_value` |
 | `activity_log` | User-facing activity history | `user_id`, `activity_type`, `description` |
 | `refresh_tokens` | JWT refresh token storage | `token`, `is_revoked`, `expires_at` |
-
-## Verified Workflow (Post-Audit)
-
-The following end-to-end flow has been tested and confirmed working:
-
-1. ✅ **Teacher creates assignment** with PDF + DOCX attachments → files stored, DB records in `assignment_attachments`
-2. ✅ **Student views assignment** → sees attachments with 📎 icons, can Preview (PDF) or Download
-3. ✅ **Student uploads 3 files** (PDF, DOCX, ZIP) → progress bar 0→100%, toast "Submitted successfully"
-4. ✅ **Student resubmits** (version 2) → new submission created, files stored
-5. ✅ **Teacher opens submissions list** → sees student, assignment, status badges, file links
-6. ✅ **Teacher clicks "Grade"** → Grade Center opens with all submitted files listed
-7. ✅ **Teacher clicks PDF file** → opens in new tab (browser PDF viewer)
-8. ✅ **Teacher clicks DOCX/ZIP** → downloads file
-9. ✅ **Teacher grades, finalizes** → status updates, student sees grade + feedback
-10. ✅ **Admin accesses any file** via `/api/files/...` → works with proper auth
-11. ✅ **Unauthorized user tries file URL** → gets 403
-12. ✅ **Mobile responsive** → file lists stack, buttons touch-friendly
-13. ✅ **Dark mode** → file list colors adapt correctly
 
 ## License
 

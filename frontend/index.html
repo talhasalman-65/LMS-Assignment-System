@@ -1,49 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartAssign LMS - Login</title>
-  <link rel="stylesheet" href="/css/main.css">
-</head>
-<body>
-  <div class="login-page">
-    <div class="login-card">
-      <div class="login-header">
-        <div class="logo-icon"><img src="./logos/logo.png" alt="logo" width="30px"></div>
-        <h1>SmartAssign LMS</h1>
-        <p>Assignment Submission & Evaluation System</p>
-      </div>
-      <div class="login-body">
-        <div id="login-error" class="login-error"></div>
-        <form id="login-form">
-          <div class="form-group">
-            <label class="form-label" for="email">Email</label>
-            <input type="email" id="email" class="form-input" placeholder="Enter your email" required autocomplete="email">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="password">Password</label>
-            <input type="password" id="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
-          </div>
-          <button type="submit" class="btn btn-primary btn-lg" style="width:100%" id="login-btn">
-            Sign In
-          </button>
-        </form>
-        <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);font-size:0.8rem;color:var(--text-light)">
-          <p style="margin-bottom:8px;font-weight:600">Demo Accounts:</p>
-          <p>Admin: admin@smartassign.com</p>
-          <p>Teacher: teacher@smartassign.com</p>
-          <p>Students: student1@smartassign.com / student2@smartassign.com</p>
-          <p style="margin-top:4px">Password: <code>Password1</code></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="toast-container" class="toast-container"></div>
-
-  <script src="/js/api.js"></script>
-  <script src="/js/utils.js"></script>
-  <script src="/js/login-page.js"></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartAssign LMS</title>
+    <link rel="icon" type="image/png" href="/logos/logo.png" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>

@@ -1,0 +1,110 @@
+/* ===== Design Tokens — Office Hours ===== */
+/* Single source of truth — no hex values outside this file */
+
+:root {
+  /* Backgrounds */
+  --bg-app: #F6F5F1;
+  --bg-card: #FFFFFF;
+  --bg-sidebar: #1B2430;
+  --bg-header: #FFFFFF;
+  --bg-hover: rgba(27, 36, 48, 0.04);
+  --bg-active: rgba(14, 124, 102, 0.08);
+
+  /* Text */
+  --text-primary: #1B2430;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --text-inverse: #F6F5F1;
+
+  /* Brand */
+  --accent: #0E7C66;
+  --accent-hover: #0A5E4D;
+  --accent-light: #2FBFA0;
+  --accent-subtle: rgba(14, 124, 102, 0.1);
+  --brass: #C9922B;
+  --brass-hover: #A6771E;
+  --brass-light: #E0AC4B;
+
+  /* Semantic */
+  --success: #2F9E6E;
+  --success-subtle: rgba(47, 158, 110, 0.1);
+  --warning: #C9922B;
+  --warning-subtle: rgba(201, 146, 43, 0.1);
+  --danger: #B8463A;
+  --danger-hover: #E2685A;
+  --danger-subtle: rgba(184, 70, 58, 0.1);
+  --info: #3B82F6;
+  --info-subtle: rgba(59, 130, 246, 0.1);
+
+  /* Borders */
+  --border: #E5E7EB;
+  --border-light: #F3F4F6;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(27, 36, 48, 0.06);
+  --shadow-md: 0 2px 8px rgba(27, 36, 48, 0.08);
+  --shadow-lg: 0 4px 16px rgba(27, 36, 48, 0.1);
+
+  /* Typography */
+  --font-sans: 'Public Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --header-height: 56px;
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --bg-app: #1B1F26;
+  --bg-card: #232830;
+  --bg-sidebar: #1B1F26;
+  --bg-header: #232830;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(47, 191, 160, 0.12);
+
+  --text-primary: #F3F1EC;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  --text-inverse: #1B2430;
+
+  --accent: #2FBFA0;
+  --accent-hover: #3DCDAF;
+  --accent-light: #5EDBC0;
+  --accent-subtle: rgba(47, 191, 160, 0.12);
+  --brass: #E0AC4B;
+  --brass-hover: #E8B85A;
+  --brass-light: #F0C87A;
+
+  --success-subtle: rgba(47, 158, 110, 0.15);
+  --warning-subtle: rgba(224, 172, 75, 0.15);
+  --danger: #E2685A;
+  --danger-subtle: rgba(226, 104, 90, 0.15);
+  --info-subtle: rgba(59, 130, 246, 0.15);
+
+  --border: #374151;
+  --border-light: #2D3748;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+}

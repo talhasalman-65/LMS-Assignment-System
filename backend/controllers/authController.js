@@ -10,13 +10,6 @@ const authController = {
 
       const result = await authService.login(email, password, ipAddress, userAgent);
 
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
       res.json({
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
@@ -36,13 +29,6 @@ const authController = {
 
       const result = await authService.refresh(refreshToken);
 
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      });
-
       res.json(result);
     } catch (err) {
       res.status(401).json({ error: err.message });
@@ -54,7 +40,6 @@ const authController = {
       const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
       await authService.logout(refreshToken);
 
-      res.clearCookie('refreshToken');
       res.json({ message: 'Logged out successfully' });
     } catch (err) {
       res.status(500).json({ error: 'Logout failed' });

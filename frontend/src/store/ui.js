@@ -2,7 +2,10 @@ import { create } from 'zustand';
 
 export const useUIStore = create((set) => ({
   theme: localStorage.getItem('theme') || 'light',
-  sidebarOpen: false,
+  sidebarOpen:
+    localStorage.getItem('sidebarOpen') !== null
+      ? localStorage.getItem('sidebarOpen') === 'true'
+      : true,
   toasts: [],
 
   toggleTheme: () =>
@@ -13,8 +16,16 @@ export const useUIStore = create((set) => ({
       return { theme: next };
     }),
 
-  setSidebarOpen: (open) => set({ sidebarOpen: open }),
-  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+  setSidebarOpen: (open) => {
+    localStorage.setItem('sidebarOpen', String(open));
+    set({ sidebarOpen: open });
+  },
+  toggleSidebar: () =>
+    set((state) => {
+      const next = !state.sidebarOpen;
+      localStorage.setItem('sidebarOpen', String(next));
+      return { sidebarOpen: next };
+    }),
 
   addToast: (toast) =>
     set((state) => ({

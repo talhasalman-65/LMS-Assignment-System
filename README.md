@@ -169,8 +169,9 @@ React Router → ProtectedRoute → Layout (Sidebar + TopHeader) → Page
 ```
 
 - **Routing**: 28 routes (23 page views + 5 index redirects) across 3 roles, all under `/app/{role}/...`. `RootRedirect` handles first-load role detection. `ProtectedRoute` gates by role and returns `null` during session check to prevent flash-of-login.
-- **State**: Zustand stores for `auth` (user, tokens, session state) and `ui` (sidebar, theme, toasts). Server data fetched via TanStack Query with automatic caching and refetching.
-- **UI System**: 17 shared components styled with CSS custom properties (Office Hours palette). Status indicators use a 3px colored left-edge bar on tables and pill badges in detail views.
+- **State**: Zustand stores for `auth` (user, tokens, session state) and `ui` (sidebar, theme, toasts). Both stores persist key state to `localStorage` — `theme` and `sidebarOpen` survive page reload.
+- **Sidebar**: Fixed left sidebar with 260px expanded / 64px icon-only collapsed states, animated via CSS transitions (300ms). On mobile (<1024px), the sidebar slides in as an overlay. The toggle state is shared with `AppLayout` via the Zustand store so the main content area reflows correctly (margin transition). Desktop collapse button uses `ChevronLeft`/`ChevronRight` icons; mobile uses a hamburger in the top header.
+- **UI System**: 17 shared components styled with CSS custom properties (Office Hours palette). Status indicators use a 3px colored left-edge bar on tables and pill badges in detail views. Sidebar navigation uses dedicated CSS variables (`--sidebar-nav-text`, `--sidebar-nav-bg-hover`, etc.) for consistent light/dark theming with three distinguishable states: default, hover, and active.
 - **Design Tokens**: Single source of truth in `tokens.css` — ink `#1B2430`, paper `#F6F5F1`, teal `#0E7C66`, brass `#C9922B`. Fonts: Public Sans (UI), JetBrains Mono (monospace).
 
 ### Authentication flow

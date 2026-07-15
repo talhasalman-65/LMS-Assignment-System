@@ -70,7 +70,15 @@
 
   /* Layout */
   --sidebar-width: 260px;
+  --sidebar-collapsed-width: 64px;
   --header-height: 56px;
+
+  /* Sidebar navigation */
+  --sidebar-nav-text: rgba(255, 255, 255, 0.70);
+  --sidebar-nav-text-hover: #FFFFFF;
+  --sidebar-nav-bg-hover: rgba(255, 255, 255, 0.10);
+  --sidebar-nav-bg-active: rgba(255, 255, 255, 0.15);
+  --sidebar-nav-border-active: var(--accent);
 }
 
 /* Dark Theme */
@@ -85,7 +93,7 @@
   --text-primary: #F3F1EC;
   --text-secondary: #9CA3AF;
   --text-muted: #6B7280;
-  --text-inverse: #1B2430;
+  --text-inverse: #F3F1EC;
 
   --accent: #2FBFA0;
   --accent-hover: #3DCDAF;

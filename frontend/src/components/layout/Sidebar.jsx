@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useUIStore } from '@/store/ui';
 import { useAuthStore } from '@/store/auth';
 import { cn } from '@/utils/helpers';
@@ -57,6 +57,7 @@ export default function Sidebar() {
   const sidebarOpen = useUIStore((s) => s.sidebarOpen);
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const user = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
   const role = user?.role;
 
   const config = NAV_CONFIG[role];
@@ -96,7 +97,14 @@ export default function Sidebar() {
             sidebarOpen ? 'gap-3 px-5' : 'justify-center'
           )}
         >
-          <div className="w-7 h-7 rounded bg-teal flex items-center justify-center text-xs font-bold shrink-0">
+          <div
+            onClick={() => navigate(`/app/${role}/dashboard`)}
+            className="w-7 h-7 rounded bg-teal flex items-center justify-center text-xs font-bold shrink-0 cursor-pointer hover:bg-[var(--accent-hover)] transition-colors duration-200"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') navigate(`/app/${role}/dashboard`); }}
+            aria-label="Go to dashboard"
+          >
             S
           </div>
           {sidebarOpen && (
@@ -138,18 +146,25 @@ export default function Sidebar() {
               title={item.label}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 text-sm transition-all duration-200',
+                  'group flex items-center gap-3 text-sm transition-all duration-200',
                   sidebarOpen
-                    ? 'px-5 py-2.5 text-[var(--sidebar-nav-text)] hover:text-[var(--sidebar-nav-text-hover)] hover:bg-[var(--sidebar-nav-bg-hover)]'
-                    : 'justify-center py-3 text-[var(--sidebar-nav-text)] hover:text-[var(--sidebar-nav-text-hover)] hover:bg-[var(--sidebar-nav-bg-hover)]',
-                  isActive &&
-                    (sidebarOpen
-                      ? 'text-white bg-[var(--sidebar-nav-bg-active)] border-r-[3px] border-[var(--sidebar-nav-border-active)]'
-                      : 'text-white bg-[var(--sidebar-nav-bg-active)]')
+                    ? 'px-5 py-2.5'
+                    : 'justify-center py-3',
+                  isActive
+                    ? 'text-white bg-[var(--sidebar-nav-bg-active)] border-r-[3px] border-[var(--sidebar-nav-border-active)]'
+                    : 'text-[var(--sidebar-nav-text)] hover:text-[var(--sidebar-nav-text-hover)] hover:bg-[var(--sidebar-nav-bg-hover)]'
                 )
               }
             >
-              <item.icon size={18} />
+              <div className={cn(
+                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200',
+                'group-hover:bg-[var(--accent-subtle)]'
+              )}>
+                <item.icon
+                  size={18}
+                  className="transition-colors duration-200 group-hover:text-[var(--accent-light)]"
+                />
+              </div>
               {sidebarOpen && <span>{item.label}</span>}
             </NavLink>
           ))}

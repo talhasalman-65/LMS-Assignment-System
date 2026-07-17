@@ -24,15 +24,15 @@ INSERT INTO sections (id, class_id, name, description) VALUES
 
 -- Admin account
 INSERT INTO users (id, full_name, email, password_hash, role, status, employee_id) VALUES
-    (1, 'System Administrator', 'admin@smartassign.com', '$2a$10$1vlymQzOrcaeqwEkJSSiZurymhEM.ZauPLwIQZd1.cUyInobyvqYm', 'administrator', 'active', 'ADM001');
+    (1, 'System Administrator', 'admin@smartassign.com', '$2a$10$ntaLGB2MJwzd/QGnjrMEYeJpD1uO1HViK849clgmPbDDdkOdteNwm', 'administrator', 'active', 'ADM001');
 
 -- Teacher account
 INSERT INTO users (id, full_name, email, password_hash, role, status, employee_id, department) VALUES
-    (2, 'John Teacher', 'teacher@smartassign.com', '$2a$10$1vlymQzOrcaeqwEkJSSiZurymhEM.ZauPLwIQZd1.cUyInobyvqYm', 'teacher', 'active', 'TCH001', 'Science');
+    (2, 'John Teacher', 'teacher@smartassign.com', '$2a$10$ntaLGB2MJwzd/QGnjrMEYeJpD1uO1HViK849clgmPbDDdkOdteNwm', 'teacher', 'active', 'TCH001', 'Science');
 
 -- Student accounts
 INSERT INTO users (id, full_name, email, password_hash, role, status, roll_number, registration_number, class_id, section_id, phone_number) VALUES
-    (3, 'Alice Student', 'student1@smartassign.com', '$2a$10$1vlymQzOrcaeqwEkJSSiZurymhEM.ZauPLwIQZd1.cUyInobyvqYm', 'student', 'active', 'STU001', 'REG001', 1, 1, '+1234567890'),
-    (4, 'Bob Student', 'student2@smartassign.com', '$2a$10$1vlymQzOrcaeqwEkJSSiZurymhEM.ZauPLwIQZd1.cUyInobyvqYm', 'student', 'active', 'STU002', 'REG002', 1, 1, '+1234567891');
+    (3, 'Alice Student', 'student1@smartassign.com', '$2a$10$ntaLGB2MJwzd/QGnjrMEYeJpD1uO1HViK849clgmPbDDdkOdteNwm', 'student', 'active', 'STU001', 'REG001', 1, 1, '+1234567890'),
+    (4, 'Bob Student', 'student2@smartassign.com', '$2a$10$ntaLGB2MJwzd/QGnjrMEYeJpD1uO1HViK849clgmPbDDdkOdteNwm', 'student', 'active', 'STU002', 'REG002', 1, 1, '+1234567891');
 
 COMMIT;

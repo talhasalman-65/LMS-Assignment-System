@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/api/client';
 import { formatDate } from '@/utils/format';
@@ -25,6 +25,7 @@ export default function TeacherAssignments() {
   const { data, isLoading } = useQuery({
     queryKey: ['teacher-assignments', filters],
     queryFn: () => apiRequest('/assignments', { params: filters }),
+    placeholderData: keepPreviousData,
   });
 
   const deleteMutation = useMutation({

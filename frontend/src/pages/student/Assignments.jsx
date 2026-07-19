@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/api/client';
 import { useAuthStore } from '@/store/auth';
@@ -27,6 +27,7 @@ export default function StudentAssignments() {
   const { data, isLoading } = useQuery({
     queryKey: ['student-assignments', userId, filters],
     queryFn: () => apiRequest('/assignments', { params: filters }),
+    placeholderData: keepPreviousData,
     enabled: !!userId,
   });
 

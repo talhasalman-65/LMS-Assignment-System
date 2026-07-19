@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiRequest } from '@/api/client';
 import { formatDate } from '@/utils/format';
@@ -21,6 +21,7 @@ export default function TeacherSubmissions() {
   const { data, isLoading } = useQuery({
     queryKey: ['teacher-submissions', filters],
     queryFn: () => apiRequest('/submissions', { params: filters }),
+    placeholderData: keepPreviousData,
   });
 
   const submissions = data?.submissions || [];

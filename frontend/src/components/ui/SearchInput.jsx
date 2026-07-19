@@ -1,27 +1,38 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Search, X } from 'lucide-react';
-import { debounce } from '@/utils/helpers';
 
 export default function SearchInput({ value: externalValue, onChange, placeholder = 'Search...', debounceMs = 300 }) {
   const [localValue, setLocalValue] = useState(externalValue || '');
+  const onChangeRef = useRef(onChange);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   useEffect(() => {
     setLocalValue(externalValue || '');
   }, [externalValue]);
 
-  const debouncedOnChange = debounce((val) => {
-    onChange?.(val);
-  }, debounceMs);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleChange = (e) => {
     const val = e.target.value;
     setLocalValue(val);
-    debouncedOnChange(val);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onChangeRef.current?.(val);
+    }, debounceMs);
   };
 
   const handleClear = () => {
     setLocalValue('');
-    onChange?.('');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    onChangeRef.current?.('');
   };
 
   return (

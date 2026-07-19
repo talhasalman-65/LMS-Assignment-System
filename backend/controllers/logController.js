@@ -5,7 +5,8 @@ const logController = {
   async getLogs(req, res) {
     try {
       const { page, limit, offset } = getPaginationParams(req.query);
-      const { actorId, action, entityType, dateFrom, dateTo } = req.query;
+      const { actorId, action, entityType, dateFrom, dateTo, search } = req.query;
+      const searchTerm = search || action;
 
       let query = 'SELECT sl.*, u.full_name as actor_name FROM system_logs sl LEFT JOIN users u ON sl.actor_id = u.id WHERE 1=1';
       let countQuery = 'SELECT COUNT(*) FROM system_logs sl WHERE 1=1';
@@ -14,7 +15,7 @@ const logController = {
       let i = 0;
 
       if (actorId) { i++; query += ` AND sl.actor_id = $${i}`; countQuery += ` AND sl.actor_id = $${i}`; params.push(parseInt(actorId)); countParams.push(parseInt(actorId)); }
-      if (action) { i++; query += ` AND sl.action ILIKE $${i}`; countQuery += ` AND sl.action ILIKE $${i}`; params.push(`%${action}%`); countParams.push(`%${action}%`); }
+      if (searchTerm) { i++; query += ` AND sl.action ILIKE $${i}`; countQuery += ` AND sl.action ILIKE $${i}`; params.push(`%${searchTerm}%`); countParams.push(`%${searchTerm}%`); }
       if (entityType) { i++; query += ` AND sl.entity_type = $${i}`; countQuery += ` AND sl.entity_type = $${i}`; params.push(entityType); countParams.push(entityType); }
       if (dateFrom) { i++; query += ` AND sl.created_at >= $${i}`; countQuery += ` AND sl.created_at >= $${i}`; params.push(dateFrom); countParams.push(dateFrom); }
       if (dateTo) { i++; query += ` AND sl.created_at <= $${i}`; countQuery += ` AND sl.created_at <= $${i}`; params.push(dateTo); countParams.push(dateTo); }

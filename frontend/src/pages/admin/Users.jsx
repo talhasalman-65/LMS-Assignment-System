@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { apiRequest } from '@/api/client';
 import { useUIStore } from '@/store/ui';
 import {
@@ -33,6 +33,7 @@ export default function AdminUsers() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-users', filters],
     queryFn: () => apiRequest('/users', { params: filters }),
+    placeholderData: keepPreviousData,
   });
 
   const classesQuery = useQuery({ queryKey: ['classes'], queryFn: () => apiRequest('/classes') });

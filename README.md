@@ -182,6 +182,19 @@ React Router → ProtectedRoute → Layout (Sidebar + TopHeader) → Page
 4. `POST /api/auth/logout` revokes the refresh token server-side.
 5. On app mount, a `useEffect` in `main.jsx` calls `GET /api/auth/me` to restore the session. The `isCheckingSession` flag prevents route guards from redirecting before the check completes.
 
+### Search
+
+List endpoints on four entities support a `search` query parameter for case-insensitive substring filtering via PostgreSQL `ILIKE`:
+
+| Endpoint | Search Fields | Format |
+|---|---|---|
+| `GET /api/assignments` | `a.title` | `?search=keyword` |
+| `GET /api/submissions` | `u.full_name`, `a.title` | `?search=keyword` |
+| `GET /api/users` | `full_name`, `email` | `?search=keyword` |
+| `GET /api/logs` | `sl.action` | `?search=keyword` (also accepts `action` for backward compatibility) |
+
+The frontend `SearchInput` component debounces input at 300ms and resets pagination to page 1 on each search. React Query's `keepPreviousData` keeps the previous list visible while new results load.
+
 ### File uploads & secure access
 
 - multer stores files in `./uploads/` with UUID-based filenames.

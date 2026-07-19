@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { apiRequest } from '@/api/client';
 import { formatDate } from '@/utils/format';
 import { Card, CardBody, SearchInput, Skeleton, EmptyState, Button } from '@/components/ui';
@@ -15,6 +15,7 @@ export default function AdminLogs() {
   const { data, isLoading } = useQuery({
     queryKey: ['admin-logs', filters],
     queryFn: () => apiRequest('/logs', { params: filters }),
+    placeholderData: keepPreviousData,
   });
 
   const logs = data?.logs || [];

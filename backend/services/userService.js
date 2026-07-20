@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const userRepository = require('../repositories/userRepository');
 const { auditLog, activityLogger } = require('../utils/logger');
 
@@ -18,12 +19,13 @@ const userService = {
     const existing = await userRepository.findByEmail(data.email);
     if (existing) throw new Error('Email already in use');
 
-    const defaultPassword = data.password || 'Password1';
-    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    const password = data.password || crypto.randomBytes(16).toString('hex');
+    const passwordHash = await bcrypt.hash(password, 10);
 
     const user = await userRepository.create({
       ...data,
       passwordHash,
+      mustChangePassword: !data.password,
     });
 
     await auditLog.log(actorId, 'user_create', 'users', user.id, null, { fullName: data.fullName, email: data.email, role: data.role });

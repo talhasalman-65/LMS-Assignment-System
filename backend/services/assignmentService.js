@@ -28,9 +28,15 @@ const assignmentService = {
     return await assignmentRepository.findAll(filters);
   },
 
-  async update(id, data, actorId) {
+  async update(id, data, user) {
     const before = await assignmentRepository.findById(id);
     if (!before) throw new Error('Assignment not found');
+
+    if (user.role === 'teacher' && before.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
 
     const updated = await assignmentRepository.update(id, data);
 
@@ -39,23 +45,38 @@ const assignmentService = {
       await assignmentRepository.addTargets(id, data.targets);
     }
 
-    await auditLog.log(actorId, 'assignment_update', 'assignments', id, { title: before.title }, { title: data.title || before.title });
-    await activityLogger.log(actorId, 'assignment_updated', `Updated assignment: ${before.title}`);
+    await auditLog.log(user.userId, 'assignment_update', 'assignments', id, { title: before.title }, { title: data.title || before.title });
+    await activityLogger.log(user.userId, 'assignment_updated', `Updated assignment: ${before.title}`);
 
     return updated;
   },
 
-  async delete(id, actorId) {
+  async delete(id, user) {
     const before = await assignmentRepository.findById(id);
     if (!before) throw new Error('Assignment not found');
 
+    if (user.role === 'teacher' && before.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+
     await assignmentRepository.softDelete(id);
-    await auditLog.log(actorId, 'assignment_delete', 'assignments', id, { title: before.title }, null);
+    await auditLog.log(user.userId, 'assignment_delete', 'assignments', id, { title: before.title }, null);
   },
 
-  async archive(id, actorId) {
+  async archive(id, user) {
+    const before = await assignmentRepository.findById(id);
+    if (!before) throw new Error('Assignment not found');
+
+    if (user.role === 'teacher' && before.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+
     const result = await assignmentRepository.update(id, { isArchived: true });
-    await activityLogger.log(actorId, 'assignment_archived', `Archived assignment: ${result.title}`);
+    await activityLogger.log(user.userId, 'assignment_archived', `Archived assignment: ${result.title}`);
     return result;
   },
 

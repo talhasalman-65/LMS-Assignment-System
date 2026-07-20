@@ -87,12 +87,12 @@ const userRepository = {
     return { users: dataResult.rows, total: parseInt(countResult.rows[0].count) };
   },
 
-  async create({ fullName, email, passwordHash, role, status, phoneNumber, employeeId, department, rollNumber, registrationNumber, classId, sectionId }) {
+  async create({ fullName, email, passwordHash, role, status, phoneNumber, employeeId, department, rollNumber, registrationNumber, classId, sectionId, mustChangePassword }) {
     const result = await db.query(
-      `INSERT INTO users (full_name, email, password_hash, role, status, phone_number, employee_id, department, roll_number, registration_number, class_id, section_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      `INSERT INTO users (full_name, email, password_hash, role, status, phone_number, employee_id, department, roll_number, registration_number, class_id, section_id, must_change_password)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
        RETURNING id, full_name, email, role, status, created_at`,
-      [fullName, email, passwordHash, role, status || 'active', phoneNumber || null, employeeId || null, department || null, rollNumber || null, registrationNumber || null, classId || null, sectionId || null]
+      [fullName, email, passwordHash, role, status || 'active', phoneNumber || null, employeeId || null, department || null, rollNumber || null, registrationNumber || null, classId || null, sectionId || null, mustChangePassword || false]
     );
     return result.rows[0];
   },
@@ -114,6 +114,7 @@ const userRepository = {
       classId: 'class_id',
       sectionId: 'section_id',
       profilePicture: 'profile_picture',
+      mustChangePassword: 'must_change_password',
     };
 
     for (const [key, value] of Object.entries(fields)) {

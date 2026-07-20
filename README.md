@@ -9,7 +9,7 @@ Learning Management System for assignment submission and evaluation with three r
 - **Database**: PostgreSQL 14+ with custom ENUM types
 - **Auth**: JWT (15m access token + 7d refresh token with rotation), bcryptjs password hashing
 - **File Uploads**: multer with type whitelist (`.pdf`, `.docx`, `.zip`) and 5 MB size limit
-- **Security**: helmet (HTTP headers), express-rate-limit, parameterized SQL queries, file download authorization
+- **Security**: helmet (HTTP headers), express-rate-limit, parameterized SQL queries, authenticated file serving with owner checks, mandatory JWT secrets, `INACCESSIBLE` check, temp-password force-reset flow
 - **Validation**: express-validator on all mutation endpoints
 
 ## Prerequisites
@@ -54,8 +54,8 @@ Edit `.env` to match your PostgreSQL credentials and desired JWT secrets.
 | `DB_NAME` | `smartassign_lms` | Database name |
 | `DB_USER` | `postgres` | Database user |
 | `DB_PASSWORD` | — | Database password |
-| `JWT_ACCESS_SECRET` | — | HMAC key for access tokens |
-| `JWT_REFRESH_SECRET` | — | HMAC key for refresh tokens |
+| `JWT_ACCESS_SECRET` | _(required)_ | HMAC key for access tokens — startup fails if unset |
+| `JWT_REFRESH_SECRET` | _(required)_ | HMAC key for refresh tokens — startup fails if unset |
 | `JWT_ACCESS_EXPIRY` | `15m` | Access token TTL |
 | `JWT_REFRESH_EXPIRY` | `7d` | Refresh token TTL |
 | `MAX_FILE_SIZE` | `5242880` | Max upload size in bytes |
@@ -100,7 +100,7 @@ smartassign-lms/
 │   │   └── index.js          # Unified config object (port, jwt, upload)
 │   ├── controllers/          # HTTP handlers — parse input, delegate to services, format response
 │   ├── middleware/
-│   │   ├── auth.js           # authenticate (JWT verify) + authorize (role check)
+│   │   ├── auth.js           # authenticate (JWT verify) + authorize (role check) + requirePasswordChange (must_change_password enforcement)
 │   │   ├── rateLimiter.js    # loginLimiter (10/15m) + apiLimiter (200/15m)
 │   │   ├── upload.js         # multer config (disk storage, uuid filenames)
 │   │   └── validate.js       # express-validator error handler
@@ -156,7 +156,7 @@ Routes → Middleware → Controllers → Services → Repositories → PostgreS
 ```
 
 - **Routes** (`routes/`) — Define HTTP method + path + middleware chain. All routes under `/api/` use `authenticate`; mutation endpoints add `authorize(...roles)`.
-- **Middleware** — `authenticate` decodes the JWT and attaches `req.user = { userId, role, email }`. `authorize(...allowedRoles)` returns 403 if `req.user.role` is not in the list.
+- **Middleware** — `authenticate` decodes the JWT and attaches `req.user = { userId, role, email }`, then runs `requirePasswordChange` (DB lookup on `must_change_password` — blocks requests except `/me`, `/change-password`, `/logout`). `authorize(...allowedRoles)` returns 403 if `req.user.role` is not in the list.
 - **Controllers** (`controllers/`) — Extract query/body/params, call services, send JSON responses. No business logic.
 - **Services** (`services/`) — Contain business rules, orchestrate multiple repository calls, write audit logs.
 - **Repositories** (`repositories/`) — Execute parameterized SQL queries and return plain objects. No Express dependency.
@@ -176,11 +176,12 @@ React Router → ProtectedRoute → Layout (Sidebar + TopHeader) → Page
 
 ### Authentication flow
 
-1. `POST /api/auth/login` — Validate credentials with bcrypt, issue access token (15m) + refresh token (7d, stored in `refresh_tokens` table).
+1. `POST /api/auth/login` — Validate credentials with bcrypt, issue access token (15m) + refresh token (7d, stored in `refresh_tokens` table). If the user's `must_change_password` flag is `true`, the response includes `requiresPasswordChange: true` and all authenticated endpoints (except `/me`, `/change-password`, `/logout`) return `403 PASSWORD_CHANGE_REQUIRED`.
 2. Client stores both tokens in `localStorage`. Access token sent as `Authorization: Bearer <token>` on every request.
 3. On 401, the API client automatically calls `POST /api/auth/refresh` with the refresh token. The old refresh token is revoked (rotation). A new token pair is issued and the original request is retried once.
 4. `POST /api/auth/logout` revokes the refresh token server-side.
 5. On app mount, a `useEffect` in `main.jsx` calls `GET /api/auth/me` to restore the session. The `isCheckingSession` flag prevents route guards from redirecting before the check completes.
+6. `POST /api/auth/change-password` clears the `must_change_password` flag on success, lifting the restriction immediately (no token refresh needed — checked via DB per request).
 
 ### Search
 
@@ -201,7 +202,7 @@ The frontend `SearchInput` component debounces input at 300ms and resets paginat
 - Allowed extensions: `.pdf`, `.docx`, `.zip`.
 - Maximum 5 files per request, 5 MB each.
 - File type validation in `middleware/upload.js`; global error handler catches multer errors.
-- Files served via **static `/uploads/`** directory with Express `express.static`.
+- Files served via **`GET /api/files/:type/:id`** (authenticated, ownership-checked). `type` is `submission` or `attachment`; `id` is the file record's primary key. The endpoint enforces the same access rules as the submission/assignment it belongs to. Resolved paths are verified to stay within the uploads directory.
 
 ## API Routes
 
@@ -226,7 +227,8 @@ The frontend `SearchInput` component debounces input at 300ms and resets paginat
 | `POST` | `/api/assignments/:id/archive` | JWT | Teacher, Admin | Archive assignment |
 | `POST` | `/api/submissions/:assignmentId/submit` | JWT | Student | Submit assignment (multipart) |
 | `GET` | `/api/submissions` | JWT | — | List submissions (scoped by role) |
-| `GET` | `/api/submissions/:id` | JWT | — | Get submission (+ files) |
+| `GET` | `/api/submissions/:id` | JWT | — | Get submission (+ files, owner-scoped) |
+| `GET` | `/api/files/:type/:id` | JWT | — | Download file (submission or attachment, access-controlled) |
 | `POST` | `/api/submissions/:id/grade` | JWT | Teacher, Admin | Grade submission |
 | `POST` | `/api/submissions/:id/finalize` | JWT | Teacher, Admin | Finalize grade |
 | `POST` | `/api/submissions/:id/return` | JWT | Teacher, Admin | Return for revision |
@@ -246,7 +248,7 @@ Full documentation: [docs/api.md](docs/api.md)
 
 | Table | Purpose | Key columns |
 |---|---|---|
-| `users` | All roles in one table (ENUM: student, teacher, administrator) | `role`, `status`, `class_id`, `section_id` |
+| `users` | All roles in one table (ENUM: student, teacher, administrator) | `role`, `status`, `class_id`, `section_id`, `must_change_password` |
 | `classes` | Institutional grades (Grade 10, 11, 12) | `name` |
 | `sections` | Divisions within classes | `class_id`, `name` |
 | `assignments` | Assignment metadata | `teacher_id`, `due_date`, `max_marks`, `assignment_type` |

@@ -39,7 +39,7 @@
                   <strong>Submitted Files:</strong>
                   <ul class="file-list" style="margin-top:8px">
                     ${sub.files.map(f => {
-                      const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                      const fileUrl = '/api/files/submission/' + f.id;
                       return `
                       <li class="file-item">
                         <img src="/logos/file.png" class="file-icon" alt="File">

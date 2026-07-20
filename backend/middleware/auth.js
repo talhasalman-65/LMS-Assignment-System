@@ -1,5 +1,40 @@
 const jwt = require('jsonwebtoken');
 const config = require('../config');
+const db = require('../config/database');
+
+const PASSWORD_CHANGE_WHITELIST = [
+  { method: 'POST', path: '/api/auth/change-password' },
+  { method: 'POST', path: '/api/auth/logout' },
+  { method: 'GET',  path: '/api/auth/me' },
+];
+
+function isPasswordChangeWhitelisted(req) {
+  const url = req.originalUrl;
+  return PASSWORD_CHANGE_WHITELIST.some(
+    entry => entry.method === req.method && url.startsWith(entry.path)
+  );
+}
+
+async function requirePasswordChange(req, res, next) {
+  if (!req.user) return next();
+  if (isPasswordChangeWhitelisted(req)) return next();
+
+  try {
+    const result = await db.query(
+      'SELECT must_change_password FROM users WHERE id = $1',
+      [req.user.userId]
+    );
+    if (result.rows.length > 0 && result.rows[0].must_change_password) {
+      return res.status(403).json({
+        error: 'Password change required',
+        code: 'PASSWORD_CHANGE_REQUIRED',
+      });
+    }
+    next();
+  } catch {
+    next();
+  }
+}
 
 function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -12,7 +47,7 @@ function authenticate(req, res, next) {
   try {
     const decoded = jwt.verify(token, config.jwt.accessSecret);
     req.user = decoded;
-    next();
+    requirePasswordChange(req, res, next);
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Access token expired', code: 'TOKEN_EXPIRED' });
@@ -33,4 +68,4 @@ function authorize(...allowedRoles) {
   };
 }
 
-module.exports = { authenticate, authorize };
+module.exports = { authenticate, authorize, requirePasswordChange };

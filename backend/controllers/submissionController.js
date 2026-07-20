@@ -53,37 +53,41 @@ const submissionController = {
 
   async getById(req, res) {
     try {
-      const submission = await submissionService.getById(req.params.id);
+      const submission = await submissionService.getById(req.params.id, req.user);
       res.json(submission);
     } catch (err) {
-      res.status(404).json({ error: err.message });
+      const status = err.statusCode || 404;
+      res.status(status).json({ error: err.message });
     }
   },
 
   async grade(req, res) {
     try {
-      const result = await submissionService.grade(parseInt(req.params.id), req.user.userId, req.body);
+      const result = await submissionService.grade(parseInt(req.params.id), req.user, req.body);
       res.json(result);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 
   async finalize(req, res) {
     try {
-      const result = await submissionService.finalizeGrade(parseInt(req.params.id), req.user.userId);
+      const result = await submissionService.finalizeGrade(parseInt(req.params.id), req.user);
       res.json(result);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 
   async returnForRevision(req, res) {
     try {
-      await submissionService.returnForRevision(parseInt(req.params.id), req.user.userId, req.body.feedback);
+      await submissionService.returnForRevision(parseInt(req.params.id), req.user, req.body.feedback);
       res.json({ message: 'Submission returned for revision' });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 };

@@ -135,7 +135,7 @@ export default function StudentAssignmentDetail() {
               <div className="text-xs text-[var(--text-secondary)] font-medium mb-2">Attachments</div>
               <div className="space-y-1.5">
                 {assignment.attachments.map((f, i) => {
-                  const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                  const fileUrl = '/api/files/attachment/' + f.id;
                   return (
                     <a
                       key={i}
@@ -192,7 +192,7 @@ export default function StudentAssignmentDetail() {
                     {s.files?.length > 0 && (
                       <div className="flex gap-2 mt-1.5 flex-wrap">
                         {s.files.map((f, i) => {
-                          const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                          const fileUrl = '/api/files/submission/' + f.id;
                           return (
                             <a
                               key={i}

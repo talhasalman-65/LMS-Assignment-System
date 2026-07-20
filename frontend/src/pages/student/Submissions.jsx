@@ -70,7 +70,7 @@ export default function StudentSubmissions() {
                     {s.files?.length > 0 && (
                       <div className="flex gap-2 mt-1.5 flex-wrap">
                         {s.files.map((f, i) => {
-                          const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                          const fileUrl = '/api/files/submission/' + f.id;
                           return (
                             <a
                               key={i}

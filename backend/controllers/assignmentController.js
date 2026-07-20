@@ -65,28 +65,31 @@ const assignmentController = {
 
   async update(req, res) {
     try {
-      const assignment = await assignmentService.update(parseInt(req.params.id), req.body, req.user.userId);
+      const assignment = await assignmentService.update(parseInt(req.params.id), req.body, req.user);
       res.json(assignment);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 
   async delete(req, res) {
     try {
-      await assignmentService.delete(parseInt(req.params.id), req.user.userId);
+      await assignmentService.delete(parseInt(req.params.id), req.user);
       res.json({ message: 'Assignment deleted successfully' });
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 
   async archive(req, res) {
     try {
-      const assignment = await assignmentService.archive(parseInt(req.params.id), req.user.userId);
+      const assignment = await assignmentService.archive(parseInt(req.params.id), req.user);
       res.json(assignment);
     } catch (err) {
-      res.status(400).json({ error: err.message });
+      const status = err.statusCode || 400;
+      res.status(status).json({ error: err.message });
     }
   },
 };

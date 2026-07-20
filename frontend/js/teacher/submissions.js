@@ -53,7 +53,7 @@
               <div style="font-size:0.8rem;color:var(--text-light)">${formatDate(s.submitted_at)}</div>
               ${s.files && s.files.length > 0 ? `<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
                 ${s.files.map(f => {
-                  const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                  const fileUrl = '/api/files/submission/' + f.id;
                   return `<a href="${fileUrl}" target="_blank" class="file-name" style="font-size:0.8rem">${escapeHtml(f.fileName)}</a>`;
                 }).join('')}
               </div>` : ''}

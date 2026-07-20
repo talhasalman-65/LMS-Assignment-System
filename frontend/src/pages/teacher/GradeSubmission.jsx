@@ -127,7 +127,7 @@ export default function GradeSubmission() {
                 <div className="text-xs text-[var(--text-secondary)] font-medium mb-2">Submitted Files</div>
                 <div className="space-y-1.5">
                   {sub.files.map((f, i) => {
-                    const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                    const fileUrl = '/api/files/submission/' + f.id;
                     return (
                       <a key={i} href={fileUrl} target="_blank" rel="noopener noreferrer"
                         className="flex items-center gap-2.5 px-3 py-2 rounded-md border border-[var(--border)] hover:bg-[var(--bg-hover)] transition-colors text-sm"

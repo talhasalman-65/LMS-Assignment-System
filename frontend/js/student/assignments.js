@@ -58,7 +58,7 @@
                 <strong>Attachments:</strong>
                 <ul class="file-list" style="margin-top:8px">
                   ${assignment.attachments.map(f => {
-                    const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                    const fileUrl = '/api/files/attachment/' + f.id;
                     return `
                     <li class="file-item">
                       <img src="/logos/attachment.png" class="file-icon" alt="Attachment">
@@ -86,7 +86,7 @@
                       <div style="font-size:0.85rem;color:var(--text-light)">${formatDate(s.submitted_at)}</div>
                       ${s.files && s.files.length > 0 ? `<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
                         ${s.files.map(f => {
-                          const fileUrl = '/uploads/' + (f.filePath || '').split(/[/\\]/).pop();
+                          const fileUrl = '/api/files/submission/' + f.id;
                           return `<a href="${fileUrl}" target="_blank" style="font-size:0.8rem;color:var(--primary)">${escapeHtml(f.fileName)}</a>`;
                         }).join('')}
                       </div>` : ''}

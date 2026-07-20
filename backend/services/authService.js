@@ -26,9 +26,12 @@ const authService = {
 
     await activityLogger.log(user.id, 'login', 'User logged in');
 
+    const requiresPasswordChange = user.must_change_password || false;
+
     return {
       accessToken,
       refreshToken,
+      requiresPasswordChange,
       user: {
         id: user.id,
         fullName: user.full_name,
@@ -90,6 +93,7 @@ const authService = {
 
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await userRepository.updatePassword(userId, passwordHash);
+    await userRepository.update(userId, { mustChangePassword: false });
 
     await activityLogger.log(userId, 'password_change', 'Password changed');
   },

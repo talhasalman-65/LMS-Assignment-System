@@ -54,18 +54,39 @@ const submissionService = {
     return await submissionRepository.findAll(filters);
   },
 
-  async getById(id) {
+  async getById(id, user) {
     const submission = await submissionRepository.findWithFiles(id);
     if (!submission) throw new Error('Submission not found');
+
+    const assignment = await assignmentRepository.findById(submission.assignment_id);
+    if (!assignment) throw new Error('Assignment not found');
+
+    if (user.role === 'student' && submission.student_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+    if (user.role === 'teacher' && assignment.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+
     return submission;
   },
 
-  async grade(submissionId, reviewerId, { marks, feedback, reviewNotes, status }) {
+  async grade(submissionId, user, { marks, feedback, reviewNotes, status }) {
     const submission = await submissionRepository.findById(submissionId);
     if (!submission) throw new Error('Submission not found');
 
     const assignment = await assignmentRepository.findById(submission.assignment_id);
     if (!assignment) throw new Error('Assignment not found');
+
+    if (user.role === 'teacher' && assignment.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
 
     if (marks > assignment.max_marks) {
       throw new Error(`Marks cannot exceed maximum marks (${assignment.max_marks})`);
@@ -93,7 +114,7 @@ const submissionService = {
       );
       review = review.rows[0];
 
-      await auditLog.log(reviewerId, 'grade_update', 'submissions', submissionId,
+      await auditLog.log(user.userId, 'grade_update', 'submissions', submissionId,
         { marks: before.marks, grade: before.grade, status: before.status },
         { marks, grade, status }
       );
@@ -101,20 +122,32 @@ const submissionService = {
       review = await db.query(
         `INSERT INTO submission_reviews (submission_id, reviewer_id, marks, grade, feedback, review_notes, status, is_finalized)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
-        [submissionId, reviewerId, marks, grade, feedback || null, reviewNotes || null, status, status === 'graded']
+        [submissionId, user.userId, marks, grade, feedback || null, reviewNotes || null, status, status === 'graded']
       );
       review = review.rows[0];
 
-      await auditLog.log(reviewerId, 'grade_create', 'submissions', submissionId, null, { marks, grade, status });
+      await auditLog.log(user.userId, 'grade_create', 'submissions', submissionId, null, { marks, grade, status });
     }
 
     await submissionRepository.updateStatus(submissionId, status);
-    await activityLogger.log(reviewerId, 'submission_graded', `Graded submission for assignment: ${assignment.title}`);
+    await activityLogger.log(user.userId, 'submission_graded', `Graded submission for assignment: ${assignment.title}`);
 
     return review;
   },
 
-  async finalizeGrade(submissionId, reviewerId) {
+  async finalizeGrade(submissionId, user) {
+    const submission = await submissionRepository.findById(submissionId);
+    if (!submission) throw new Error('Submission not found');
+
+    const assignment = await assignmentRepository.findById(submission.assignment_id);
+    if (!assignment) throw new Error('Assignment not found');
+
+    if (user.role === 'teacher' && assignment.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+
     const db = require('../config/database');
     const result = await db.query(
       `UPDATE submission_reviews SET is_finalized = TRUE, updated_at = CURRENT_TIMESTAMP
@@ -124,13 +157,25 @@ const submissionService = {
 
     if (result.rows.length > 0) {
       await submissionRepository.updateStatus(submissionId, 'graded');
-      await activityLogger.log(reviewerId, 'grade_finalized', 'Grade finalized');
+      await activityLogger.log(user.userId, 'grade_finalized', 'Grade finalized');
     }
 
     return result.rows[0] || null;
   },
 
-  async returnForRevision(submissionId, reviewerId, feedback) {
+  async returnForRevision(submissionId, user, feedback) {
+    const submission = await submissionRepository.findById(submissionId);
+    if (!submission) throw new Error('Submission not found');
+
+    const assignment = await assignmentRepository.findById(submission.assignment_id);
+    if (!assignment) throw new Error('Assignment not found');
+
+    if (user.role === 'teacher' && assignment.teacher_id !== user.userId) {
+      const err = new Error('Access denied');
+      err.statusCode = 403;
+      throw err;
+    }
+
     await submissionRepository.updateStatus(submissionId, 'returned_for_revision');
 
     const db = require('../config/database');
@@ -140,7 +185,7 @@ const submissionService = {
       [feedback, submissionId]
     );
 
-    await activityLogger.log(reviewerId, 'submission_returned', 'Submission returned for revision');
+    await activityLogger.log(user.userId, 'submission_returned', 'Submission returned for revision');
   },
 };
 
